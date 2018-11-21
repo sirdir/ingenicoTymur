@@ -8,6 +8,67 @@
     <artifactId>ingenico</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <testng.version>6.14.3</testng.version>
+        <restassured.version>3.2.0</restassured.version>
+        <cucumber.version>4.2.0</cucumber.version>
+        <maven.compiler.version>3.8.0</maven.compiler.version>
+        <maven.surefire.version>2.22.1</maven.surefire.version>
+        <!--<allure2.version>2.8.1</allure2.version>-->
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java8</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-testng</artifactId>
+            <version>${cucumber.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${restassured.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${restassured.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--maybe add allure later-->
+        <!--<dependency>-->
+        <!--<groupId>io.qameta.allure</groupId>-->
+        <!--<artifactId>allure-testng</artifactId>-->
+        <!--<version>${allure2.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>io.qameta.allure</groupId>-->
+        <!--<artifactId>allure-rest-assured</artifactId>-->
+        <!--<version>${allure2.version}</version>-->
+        <!--</dependency>-->
+    </dependencies>
+
+
     <build>
         <plugins>
             <plugin>
@@ -17,22 +78,14 @@
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
-                <version>3.8.0</version>
+                <version>${maven.compiler.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M1</version>
+                <version>${maven.surefire.version}</version>
             </plugin>
         </plugins>
     </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.ingenico.connect.gateway</groupId>
-            <artifactId>connect-sdk-java</artifactId>
-            <version>5.30.0</version>
-        </dependency>
-    </dependencies>
 
 </project>
