@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.ingenico</groupId>
-    <artifactId>ingenico</artifactId>
+    <artifactId>ingenicoTymur</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -14,8 +14,11 @@
         <restassured.version>3.2.0</restassured.version>
         <cucumber.version>4.2.0</cucumber.version>
         <maven.compiler.version>3.8.0</maven.compiler.version>
-        <maven.surefire.version>2.22.1</maven.surefire.version>
+        <maven.surefire.version>3.0.0-M1</maven.surefire.version>
         <ingenico.sdk.version>5.30.0</ingenico.sdk.version>
+        <webdrivermanager.version>3.0.0</webdrivermanager.version>
+        <selenium.version>3.141.59</selenium.version>
+        <jackson.version>2.9.7</jackson.version>
         <!--<allure2.version>2.8.1</allure2.version>-->
     </properties>
 
@@ -48,6 +51,21 @@
             <artifactId>connect-sdk-java</artifactId>
             <version>${ingenico.sdk.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <version>${webdrivermanager.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
 
         <!--maybe add allure later-->
         <!--<dependency>-->
@@ -68,11 +86,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.version}</version>
                 <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <compilerArgument>-Werror</compilerArgument>
                 </configuration>
-                <version>${maven.compiler.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
