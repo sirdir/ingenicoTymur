@@ -10,9 +10,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <testng.version>6.14.3</testng.version>
         <restassured.version>3.2.0</restassured.version>
-        <cucumber.version>4.2.0</cucumber.version>
+        <cucumber.version>3.0.2</cucumber.version>
         <maven.compiler.version>3.8.0</maven.compiler.version>
         <maven.surefire.version>3.0.0-M1</maven.surefire.version>
         <ingenico.sdk.version>5.30.0</ingenico.sdk.version>

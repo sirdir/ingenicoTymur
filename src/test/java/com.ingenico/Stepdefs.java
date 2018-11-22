@@ -1,18 +1,17 @@
 package com.ingenico;
 
+
 import com.ingenico.connect.gateway.sdk.java.Client;
 import com.ingenico.connect.gateway.sdk.java.CommunicatorConfiguration;
 import com.ingenico.connect.gateway.sdk.java.Factory;
 import com.ingenico.connect.gateway.sdk.java.defaultimpl.AuthorizationType;
-import com.ingenico.connect.gateway.sdk.java.domain.definitions.Address;
-import com.ingenico.connect.gateway.sdk.java.domain.definitions.AmountOfMoney;
-import com.ingenico.connect.gateway.sdk.java.domain.hostedcheckout.CreateHostedCheckoutRequest;
-import com.ingenico.connect.gateway.sdk.java.domain.hostedcheckout.CreateHostedCheckoutResponse;
-import com.ingenico.connect.gateway.sdk.java.domain.hostedcheckout.definitions.HostedCheckoutSpecificInput;
-import com.ingenico.connect.gateway.sdk.java.domain.payment.definitions.Customer;
-import com.ingenico.connect.gateway.sdk.java.domain.payment.definitions.Order;
+import com.ingenico.connect.gateway.sdk.java.logging.SysOutCommunicatorLogger;
+import com.ingenico.dto.request.*;
+import com.ingenico.dto.responce.Responce;
 import cucumber.api.java8.En;
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.parsing.Parser;
 
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -26,52 +25,53 @@ public class Stepdefs implements En {
 //            cc.setApiEndpoint(new URI("https://eu.sandbox.api-ingenico.com/"));
             cc.setApiEndpoint(new URI("https", null, "eu.sandbox.api-ingenico.com", -1, null, null, null));
             cc.setAuthorizationType(AuthorizationType.V1HMAC);
-            cc.setApiKeyId("5d5a4a2e3bdaf60f");
-            cc.setSecretApiKey("LHBG2r7n+gINSphx3GkDGvFfu04Cvya5BXWTFXcsFM8=");
-//            Client client = Factory.createClient(new URI("file:///home/sirdir/IdeaProjects/ingenicoTymur/src/test/resources/configuration.properties"), "5d5a4a2e3bdaf60f", "LHBG2r7n+gINSphx3GkDGvFfu04Cvya5BXWTFXcsFM8=");
+            cc.setApiKeyId("5d5a4a2e3bdaf60f"); //todo get from UI
+            cc.setSecretApiKey("LHBG2r7n+gINSphx3GkDGvFfu04Cvya5BXWTFXcsFM8="); //todo get from UI
+            Client client = Factory.createClient(new URI("file:///home/sirdir/IdeaProjects/ingenicoTymur/src/test/resources/configuration.properties"), "5d5a4a2e3bdaf60f", "LHBG2r7n+gINSphx3GkDGvFfu04Cvya5BXWTFXcsFM8=");
 
+            client.enableLogging(SysOutCommunicatorLogger.INSTANCE);
 
+            String xgcsrId = "1cc6daff-a305-4d7b-94b0-c580fd5ba6b4";
+            String xgcsmId = "6480071e-039d-4dca-a966-4ce3c1bc201b";
 
-            String xgcsrId = "blah";
-            String xgcsmId = "blah";
-
-            Client client = Factory.createClient(cc);
-
-            given()
-                    .contentType(ContentType.JSON)
-                    .header("X-GCS-RequestId", xgcsrId)
-                    .header("X-GCS-MessageId", xgcsmId)
-                    .header("Date", LocalDateTime.now()) //Fri, 07 Apr 2017 13:06:36 GMT
-            .when()
-                    .post("https://eu.sandbox.api-ingenico.com/")
-            .then();
-
+            Request request = new Request();
 
             HostedCheckoutSpecificInput hostedCheckoutSpecificInput = new HostedCheckoutSpecificInput();
             hostedCheckoutSpecificInput.setLocale("en_GB");
             hostedCheckoutSpecificInput.setVariant("100");
 
             AmountOfMoney amountOfMoney = new AmountOfMoney();
-            amountOfMoney.setAmount(100L);
+            amountOfMoney.setAmount(100);
             amountOfMoney.setCurrencyCode("EUR");
 
-            Address billingAddress = new Address();
+            BillingAddress billingAddress = new BillingAddress();
             billingAddress.setCountryCode("NL");
 
             Customer customer = new Customer();
             customer.setBillingAddress(billingAddress);
-            customer.setMerchantCustomerId("3024");
+            customer.setMerchantCustomerId(3024); //todo may lead issues check if fail with string
 
             Order order = new Order();
             order.setAmountOfMoney(amountOfMoney);
             order.setCustomer(customer);
 
-            CreateHostedCheckoutRequest body = new CreateHostedCheckoutRequest();
-            body.setHostedCheckoutSpecificInput(hostedCheckoutSpecificInput);
-            body.setOrder(order);
+            request.setHostedCheckoutSpecificInput(hostedCheckoutSpecificInput);
+            request.setOrder(order);
 
-            CreateHostedCheckoutResponse response = client.merchant("3024").hostedcheckouts().create(body);
-            System.out.println(response.getPartialRedirectUrl());
+            RestAssured.defaultParser = Parser.JSON;
+
+            Responce responce = given()
+                    .contentType(ContentType.JSON)
+                    .header("Authorization", "GCS v1HMAC:d0ad0559ea4cbe7b:yQzj5jiIVfJgb/5itCCpJqCJPFXVwcZUGMR8yTGkjP0=")
+                    .header("X-GCS-RequestId", xgcsrId)
+                    .header("X-GCS-MessageId", xgcsmId)
+                    .body(request)
+                    .header("Date", LocalDateTime.now()) //Fri, 07 Apr 2017 13:06:36 GMT
+            .when()
+                    .post("https://eu.sandbox.api-ingenico.com/")
+                    .as(Responce.class);
+            System.out.println(responce.getPartialRedirectUrl());
+
         });
 
         Given("sad children", () -> {
