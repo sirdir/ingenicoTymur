@@ -25,12 +25,6 @@
     <dependencies>
         <dependency>
             <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-java</artifactId>
-            <version>${cucumber.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java8</artifactId>
             <version>${cucumber.version}</version>
             <scope>test</scope>
@@ -69,14 +63,14 @@
 
         <!--maybe add allure later-->
         <!--<dependency>-->
-        <!--<groupId>io.qameta.allure</groupId>-->
-        <!--<artifactId>allure-testng</artifactId>-->
-        <!--<version>${allure2.version}</version>-->
+            <!--<groupId>io.qameta.allure</groupId>-->
+            <!--<artifactId>allure-cucumber3-jvm</artifactId>-->
+            <!--<version>${allure2.version}</version>-->
         <!--</dependency>-->
         <!--<dependency>-->
-        <!--<groupId>io.qameta.allure</groupId>-->
-        <!--<artifactId>allure-rest-assured</artifactId>-->
-        <!--<version>${allure2.version}</version>-->
+            <!--<groupId>io.qameta.allure</groupId>-->
+            <!--<artifactId>allure-rest-assured</artifactId>-->
+            <!--<version>${allure2.version}</version>-->
         <!--</dependency>-->
     </dependencies>
 
