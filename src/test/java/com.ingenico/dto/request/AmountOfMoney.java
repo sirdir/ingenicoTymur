@@ -1,4 +1,4 @@
-package com.ingenico.dto;
+package com.ingenico.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
