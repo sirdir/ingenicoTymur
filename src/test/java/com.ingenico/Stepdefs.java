@@ -12,8 +12,12 @@ import com.ingenico.connect.gateway.sdk.java.domain.hostedcheckout.definitions.H
 import com.ingenico.connect.gateway.sdk.java.domain.payment.definitions.Customer;
 import com.ingenico.connect.gateway.sdk.java.domain.payment.definitions.Order;
 import cucumber.api.java8.En;
+import io.restassured.http.ContentType;
 
 import java.net.URI;
+import java.time.LocalDateTime;
+
+import static io.restassured.RestAssured.given;
 
 public class Stepdefs implements En {
     public Stepdefs() {
@@ -25,7 +29,23 @@ public class Stepdefs implements En {
             cc.setApiKeyId("5d5a4a2e3bdaf60f");
             cc.setSecretApiKey("LHBG2r7n+gINSphx3GkDGvFfu04Cvya5BXWTFXcsFM8=");
 //            Client client = Factory.createClient(new URI("file:///home/sirdir/IdeaProjects/ingenicoTymur/src/test/resources/configuration.properties"), "5d5a4a2e3bdaf60f", "LHBG2r7n+gINSphx3GkDGvFfu04Cvya5BXWTFXcsFM8=");
+
+
+
+            String xgcsrId = "blah";
+            String xgcsmId = "blah";
+
             Client client = Factory.createClient(cc);
+
+            given()
+                    .contentType(ContentType.JSON)
+                    .header("X-GCS-RequestId", xgcsrId)
+                    .header("X-GCS-MessageId", xgcsmId)
+                    .header("Date", LocalDateTime.now()) //Fri, 07 Apr 2017 13:06:36 GMT
+            .when()
+                    .post("https://eu.sandbox.api-ingenico.com/")
+            .then();
+
 
             HostedCheckoutSpecificInput hostedCheckoutSpecificInput = new HostedCheckoutSpecificInput();
             hostedCheckoutSpecificInput.setLocale("en_GB");
