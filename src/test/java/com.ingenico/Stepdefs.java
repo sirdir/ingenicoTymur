@@ -28,15 +28,8 @@ import static io.restassured.RestAssured.given;
 
 public class Stepdefs implements En {
 
-
-
     String apiKeyId = "5d5a4a2e3bdaf60f"; //todo get from UI
     String secretApiKey = "LHBG2r7n+gINSphx3GkDGvFfu04Cvya5BXWTFXcsFM8="; //todo get from UI
-
-    MyAuth myAuth = new MyAuth(apiKeyId, secretApiKey);
-    String dataToSign = myAuth.toDataSignV2("POST", "application/json", "Fri, 06 Jun 2014 13:39:43 GMT", "/v1/3024/hostedcheckouts");
-
-    String authHeaderValue = "GCS v1HMAC:" + apiKeyId + ":" + myAuth.createAuthenticationSignature(dataToSign);
 
 
     public Stepdefs() {
@@ -51,29 +44,29 @@ public class Stepdefs implements En {
 
             client.enableLogging(SysOutCommunicatorLogger.INSTANCE);
 
-            Request request = new Request();
+            Request request = new Request("EUR", 100, 3024, "NL", "100", "en_GB");
 
-            HostedCheckoutSpecificInput hostedCheckoutSpecificInput = new HostedCheckoutSpecificInput();
-            hostedCheckoutSpecificInput.setLocale("en_GB");
-            hostedCheckoutSpecificInput.setVariant("100");
-
-            AmountOfMoney amountOfMoney = new AmountOfMoney();
-            amountOfMoney.setAmount(100);
-            amountOfMoney.setCurrencyCode("EUR");
-
-            BillingAddress billingAddress = new BillingAddress();
-            billingAddress.setCountryCode("NL");
-
-            Customer customer = new Customer();
-            customer.setBillingAddress(billingAddress);
-            customer.setMerchantCustomerId(3024); //todo may lead issues check if fail with string
-
-            Order order = new Order();
-            order.setAmountOfMoney(amountOfMoney);
-            order.setCustomer(customer);
-
-            request.setHostedCheckoutSpecificInput(hostedCheckoutSpecificInput);
-            request.setOrder(order);
+//            HostedCheckoutSpecificInput hostedCheckoutSpecificInput = new HostedCheckoutSpecificInput();
+//            hostedCheckoutSpecificInput.setLocale("en_GB");
+//            hostedCheckoutSpecificInput.setVariant("100");
+//
+//            AmountOfMoney amountOfMoney = new AmountOfMoney();
+//            amountOfMoney.setAmount(100);
+//            amountOfMoney.setCurrencyCode("EUR");
+//
+//            BillingAddress billingAddress = new BillingAddress();
+//            billingAddress.setCountryCode("NL");
+//
+//            Customer customer = new Customer();
+//            customer.setBillingAddress(billingAddress);
+//            customer.setMerchantCustomerId(3024); //todo may lead issues check if fail with string
+//
+//            Order order = new Order();
+//            order.setAmountOfMoney(amountOfMoney);
+//            order.setCustomer(customer);
+//
+//            request.setHostedCheckoutSpecificInput(hostedCheckoutSpecificInput);
+//            request.setOrder(order);
 
             RestAssured.defaultParser = Parser.JSON;
             RestAssured.config = RestAssuredConfig.config().objectMapperConfig(
@@ -91,18 +84,25 @@ public class Stepdefs implements En {
             dateFormat.setTimeZone(TimeZone.getTimeZone("GMT")); // pizgeniy cod iz sdk
             String date =  dateFormat.format(calendar.getTime()); // pizgeniy cod iz sdk
 
+            MyAuth myAuth = new MyAuth(apiKeyId, secretApiKey);
+            String dataToSign = myAuth.toDataSignV2("POST", "application/json; charset=UTF-8", date, "/v1/3024/hostedcheckouts");
+
+            String authHeaderValue = "GCS v1HMAC:" + apiKeyId + ":" + myAuth.createAuthenticationSignature(dataToSign);
+
+
             Responce responce = given()
-                    .contentType(ContentType.JSON)
+                    .log().all()
+                    .contentType("application/json")
                     .header("Authorization", authHeaderValue)
                     .body(request)
-                    .formParam("apiVersion", "v1")
-                    .formParam("merchantId", "3024")
+                    .pathParam("apiVersion", "v1")
+                    .pathParam("merchantId", "3024")
 //                    .header("Date", LocalDateTime.now()) //Fri, 07 Apr 2017 13:06:36 GMT //todo choose one
                     .header("Date", date) //todo choose one
             .when()
-                    .post("https://eu.sandbox.api-ingenico.com//{apiVersion}/{merchantId}/hostedcheckouts")
+                    .post("https://eu.sandbox.api-ingenico.com/{apiVersion}/{merchantId}/hostedcheckouts")
                     .as(Responce.class);
-            System.out.println(responce.getPartialRedirectUrl());
+            System.out.println("xuy " + responce.getPartialRedirectUrl());
 
         });
 
