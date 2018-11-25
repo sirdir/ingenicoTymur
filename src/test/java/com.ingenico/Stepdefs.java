@@ -10,12 +10,19 @@ import com.ingenico.connect.gateway.sdk.java.defaultimpl.AuthorizationType;
 import com.ingenico.connect.gateway.sdk.java.logging.SysOutCommunicatorLogger;
 import com.ingenico.dto.request.*;
 import com.ingenico.dto.responce.Responce;
+import cucumber.api.java.After;
+import cucumber.api.java.Before;
 import cucumber.api.java8.En;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.parsing.Parser;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
 
 import java.net.URI;
 import java.text.SimpleDateFormat;
@@ -28,11 +35,43 @@ import static io.restassured.RestAssured.given;
 
 public class Stepdefs implements En {
 
-    String apiKeyId = "5d5a4a2e3bdaf60f"; //todo get from UI
-    String secretApiKey = "LHBG2r7n+gINSphx3GkDGvFfu04Cvya5BXWTFXcsFM8="; //todo get from UI
+//    String apiKeyId = "5d5a4a2e3bdaf60f"; //todo get from UI
+//    String secretApiKey = "LHBG2r7n+gINSphx3GkDGvFfu04Cvya5BXWTFXcsFM8="; //todo get from UI
+    String apiKeyId;
+    String secretApiKey;
+    String endOfPaymentUrl;
+    WebDriver driver;
+
+    @Before
+    public void beforeScenario() {
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+    }
+
+    @After
+    public void afterScenario() {
+        driver.quit();
+    }
 
 
     public Stepdefs() {
+
+        Given("sad children", () -> {
+            driver.manage().window().maximize();
+            Thread.sleep(5000);
+            driver.get("https://account-sandbox.globalcollect.com/#/login");
+            driver.findElement(By.id("username")).sendKeys("kubay.timur@gmail.com");
+            driver.findElement(By.id("loginPassword")).sendKeys("B%5rkrgb");
+            driver.findElement(By.id("kc-login")).click();
+            Thread.sleep(5000);
+            driver.findElement(By.cssSelector("[data-test-selector='sidebar-link-api-keys']")).click();
+            Thread.sleep(5000);
+            apiKeyId = driver.findElement(By.xpath("//*[@translate='configCenter.general.keyBox.apiKeyId']/parent::td/following-sibling::td/div")).getText();
+            secretApiKey = driver.findElement(By.xpath("//*[@translate='configCenter.general.keyBox.privateApiKeyId']/parent::td/following-sibling::td/div")).getText();
+//            String keyId = driver.findElement(By.xpath("//*[@translate='configCenter.general.keyBox.apiKeyId']/parent::td/following-sibling::td/div")).getText();
+//            String sKey = driver.findElement(By.xpath("//*[@translate='configCenter.general.keyBox.privateApiKeyId']/parent::td/following-sibling::td/div")).getText();
+        });
+
         When("^api call$", () -> {
             CommunicatorConfiguration cc = new CommunicatorConfiguration();
 //            cc.setApiEndpoint(new URI("https://eu.sandbox.api-ingenico.com/"));
@@ -103,18 +142,26 @@ public class Stepdefs implements En {
                     .post("https://eu.sandbox.api-ingenico.com/{apiVersion}/{merchantId}/hostedcheckouts")
                     .as(Responce.class);
             System.out.println("xuy " + responce.getPartialRedirectUrl());
+            endOfPaymentUrl = responce.getPartialRedirectUrl();
 
-        });
-
-        Given("sad children", () -> {
-            // Write code here that turns the phrase above into concrete actions
         });
 
         When("open url in browser and precede with payment", () -> {
+            driver.get("https://payment." + endOfPaymentUrl);
+            driver.findElement(By.cssSelector("[data-sortablelisttext='iDEAL']>form>button")).click();
+            Thread.sleep(5000);
+            Select selector = new Select(driver.findElement(By.id("issuerId")));
+            selector.selectByVisibleText("Issuer Simulation V3 - ING");
+            driver.findElement(By.id("primaryButton")).click();
+            Thread.sleep(5000);
+            driver.findElement(By.cssSelector("form[name=ideal_issuer_sim] [name='button.edit']")).click();
+            Thread.sleep(5000);
             // Write code here that turns the phrase above into concrete actions
         });
 
         Then("happy children", () -> {
+            String actualText = driver.findElement(By.cssSelector("#paymentoptionswrapper > p")).getText();
+            assert actualText.equals("Your payment is successful.");
             // Write code here that turns the phrase above into concrete actions
         });
 
