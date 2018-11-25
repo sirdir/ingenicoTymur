@@ -1,6 +1,8 @@
 package com.ingenico;
 
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ingenico.connect.gateway.sdk.java.Client;
 import com.ingenico.connect.gateway.sdk.java.CommunicatorConfiguration;
 import com.ingenico.connect.gateway.sdk.java.Factory;
@@ -10,29 +12,44 @@ import com.ingenico.dto.request.*;
 import com.ingenico.dto.responce.Responce;
 import cucumber.api.java8.En;
 import io.restassured.RestAssured;
+import io.restassured.config.ObjectMapperConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.parsing.Parser;
 
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import static io.restassured.RestAssured.given;
 
 public class Stepdefs implements En {
+
+
+
+    String apiKeyId = "5d5a4a2e3bdaf60f"; //todo get from UI
+    String secretApiKey = "LHBG2r7n+gINSphx3GkDGvFfu04Cvya5BXWTFXcsFM8="; //todo get from UI
+
+    MyAuth myAuth = new MyAuth(apiKeyId, secretApiKey);
+    String dataToSign = myAuth.toDataSignV2("POST", "application/json", "Fri, 06 Jun 2014 13:39:43 GMT", "/v1/3024/hostedcheckouts");
+
+    String authHeaderValue = "GCS v1HMAC:" + apiKeyId + ":" + myAuth.createAuthenticationSignature(dataToSign);
+
+
     public Stepdefs() {
         When("^api call$", () -> {
             CommunicatorConfiguration cc = new CommunicatorConfiguration();
 //            cc.setApiEndpoint(new URI("https://eu.sandbox.api-ingenico.com/"));
             cc.setApiEndpoint(new URI("https", null, "eu.sandbox.api-ingenico.com", -1, null, null, null));
             cc.setAuthorizationType(AuthorizationType.V1HMAC);
-            cc.setApiKeyId("5d5a4a2e3bdaf60f"); //todo get from UI
-            cc.setSecretApiKey("LHBG2r7n+gINSphx3GkDGvFfu04Cvya5BXWTFXcsFM8="); //todo get from UI
+            cc.setApiKeyId(apiKeyId);
+            cc.setSecretApiKey(secretApiKey);
             Client client = Factory.createClient(new URI("file:///home/sirdir/IdeaProjects/ingenicoTymur/src/test/resources/configuration.properties"), "5d5a4a2e3bdaf60f", "LHBG2r7n+gINSphx3GkDGvFfu04Cvya5BXWTFXcsFM8=");
 
             client.enableLogging(SysOutCommunicatorLogger.INSTANCE);
-
-            String xgcsrId = "1cc6daff-a305-4d7b-94b0-c580fd5ba6b4";
-            String xgcsmId = "6480071e-039d-4dca-a966-4ce3c1bc201b";
 
             Request request = new Request();
 
@@ -59,16 +76,31 @@ public class Stepdefs implements En {
             request.setOrder(order);
 
             RestAssured.defaultParser = Parser.JSON;
+            RestAssured.config = RestAssuredConfig.config().objectMapperConfig(
+                    ObjectMapperConfig.objectMapperConfig().jackson2ObjectMapperFactory((cls, charset) -> {
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+                        objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+                        return objectMapper;
+                    }));
+            RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+
+
+            Calendar calendar = Calendar.getInstance(); // pizgeniy cod iz sdk
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US); // pizgeniy cod iz sdk
+            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT")); // pizgeniy cod iz sdk
+            String date =  dateFormat.format(calendar.getTime()); // pizgeniy cod iz sdk
 
             Responce responce = given()
                     .contentType(ContentType.JSON)
-                    .header("Authorization", "GCS v1HMAC:d0ad0559ea4cbe7b:yQzj5jiIVfJgb/5itCCpJqCJPFXVwcZUGMR8yTGkjP0=")
-                    .header("X-GCS-RequestId", xgcsrId)
-                    .header("X-GCS-MessageId", xgcsmId)
+                    .header("Authorization", authHeaderValue)
                     .body(request)
-                    .header("Date", LocalDateTime.now()) //Fri, 07 Apr 2017 13:06:36 GMT
+                    .formParam("apiVersion", "v1")
+                    .formParam("merchantId", "3024")
+//                    .header("Date", LocalDateTime.now()) //Fri, 07 Apr 2017 13:06:36 GMT //todo choose one
+                    .header("Date", date) //todo choose one
             .when()
-                    .post("https://eu.sandbox.api-ingenico.com/")
+                    .post("https://eu.sandbox.api-ingenico.com//{apiVersion}/{merchantId}/hostedcheckouts")
                     .as(Responce.class);
             System.out.println(responce.getPartialRedirectUrl());
 
