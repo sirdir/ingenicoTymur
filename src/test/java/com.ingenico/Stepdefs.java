@@ -3,12 +3,7 @@ package com.ingenico;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ingenico.connect.gateway.sdk.java.Client;
-import com.ingenico.connect.gateway.sdk.java.CommunicatorConfiguration;
-import com.ingenico.connect.gateway.sdk.java.Factory;
-import com.ingenico.connect.gateway.sdk.java.defaultimpl.AuthorizationType;
-import com.ingenico.connect.gateway.sdk.java.logging.SysOutCommunicatorLogger;
-import com.ingenico.dto.request.*;
+import com.ingenico.dto.request.Request;
 import com.ingenico.dto.responce.Responce;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
@@ -17,16 +12,13 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
-import io.restassured.http.ContentType;
 import io.restassured.parsing.Parser;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.Select;
 
-import java.net.URI;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -73,39 +65,7 @@ public class Stepdefs implements En {
         });
 
         When("^api call$", () -> {
-            CommunicatorConfiguration cc = new CommunicatorConfiguration();
-//            cc.setApiEndpoint(new URI("https://eu.sandbox.api-ingenico.com/"));
-            cc.setApiEndpoint(new URI("https", null, "eu.sandbox.api-ingenico.com", -1, null, null, null));
-            cc.setAuthorizationType(AuthorizationType.V1HMAC);
-            cc.setApiKeyId(apiKeyId);
-            cc.setSecretApiKey(secretApiKey);
-            Client client = Factory.createClient(new URI("file:///home/sirdir/IdeaProjects/ingenicoTymur/src/test/resources/configuration.properties"), "5d5a4a2e3bdaf60f", "LHBG2r7n+gINSphx3GkDGvFfu04Cvya5BXWTFXcsFM8=");
-
-            client.enableLogging(SysOutCommunicatorLogger.INSTANCE);
-
             Request request = new Request("EUR", 100, 3024, "NL", "100", "en_GB");
-
-//            HostedCheckoutSpecificInput hostedCheckoutSpecificInput = new HostedCheckoutSpecificInput();
-//            hostedCheckoutSpecificInput.setLocale("en_GB");
-//            hostedCheckoutSpecificInput.setVariant("100");
-//
-//            AmountOfMoney amountOfMoney = new AmountOfMoney();
-//            amountOfMoney.setAmount(100);
-//            amountOfMoney.setCurrencyCode("EUR");
-//
-//            BillingAddress billingAddress = new BillingAddress();
-//            billingAddress.setCountryCode("NL");
-//
-//            Customer customer = new Customer();
-//            customer.setBillingAddress(billingAddress);
-//            customer.setMerchantCustomerId(3024); //todo may lead issues check if fail with string
-//
-//            Order order = new Order();
-//            order.setAmountOfMoney(amountOfMoney);
-//            order.setCustomer(customer);
-//
-//            request.setHostedCheckoutSpecificInput(hostedCheckoutSpecificInput);
-//            request.setOrder(order);
 
             RestAssured.defaultParser = Parser.JSON;
             RestAssured.config = RestAssuredConfig.config().objectMapperConfig(
