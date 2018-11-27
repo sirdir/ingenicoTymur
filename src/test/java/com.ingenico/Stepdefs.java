@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ingenico.dto.request.Request;
 import com.ingenico.dto.responce.Responce;
+import com.ingenico.pages.*;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java8.En;
@@ -13,31 +14,41 @@ import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.parsing.Parser;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.PageFactory;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static io.restassured.RestAssured.given;
 
 public class Stepdefs implements En {
 
-//    String apiKeyId = "5d5a4a2e3bdaf60f"; //todo get from UI
-//    String secretApiKey = "LHBG2r7n+gINSphx3GkDGvFfu04Cvya5BXWTFXcsFM8="; //todo get from UI
-    String apiKeyId;
-    String secretApiKey;
-    String endOfPaymentUrl;
-    WebDriver driver;
+    private String apiKeyId;
+    private String secretApiKey;
+    private String endOfPaymentUrl;
+    private static final String CONTENT_TYPE = "application/json; charset=UTF-8";
+    private static final String HTTP_METHOD = "POST";
+    private WebDriver driver;
+    private IDealPage idealPage;
 
     @Before
     public void beforeScenario() {
         WebDriverManager.chromedriver().setup();
         driver = new ChromeDriver();
+        driver.manage().window().maximize();
+
+        RestAssured.defaultParser = Parser.JSON;
+        RestAssured.config = RestAssuredConfig.config().objectMapperConfig(
+                ObjectMapperConfig.objectMapperConfig().jackson2ObjectMapperFactory((cls, charset) -> {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+                    objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+                    return objectMapper;
+                }));
+        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+
     }
 
     @After
@@ -49,78 +60,59 @@ public class Stepdefs implements En {
     public Stepdefs() {
 
         Given("sad children", () -> {
-            driver.manage().window().maximize();
+
             Thread.sleep(5000);
             driver.get("https://account-sandbox.globalcollect.com/#/login");
-            driver.findElement(By.id("username")).sendKeys("kubay.timur@gmail.com");
-            driver.findElement(By.id("loginPassword")).sendKeys("B%5rkrgb");
-            driver.findElement(By.id("kc-login")).click();
+
+            LoginPage loginPage = PageFactory.initElements(driver, LoginPage.class);
+            DashboardPage dashboardPage = loginPage.loginAs("kubay.timur@gmail.com", "B%5rkrgb");
             Thread.sleep(5000);
-            driver.findElement(By.cssSelector("[data-test-selector='sidebar-link-api-keys']")).click();
+            ApiKeysPage apiKeysPage = dashboardPage.gotToApiKeys();
             Thread.sleep(5000);
-            apiKeyId = driver.findElement(By.xpath("//*[@translate='configCenter.general.keyBox.apiKeyId']/parent::td/following-sibling::td/div")).getText();
-            secretApiKey = driver.findElement(By.xpath("//*[@translate='configCenter.general.keyBox.privateApiKeyId']/parent::td/following-sibling::td/div")).getText();
-//            String keyId = driver.findElement(By.xpath("//*[@translate='configCenter.general.keyBox.apiKeyId']/parent::td/following-sibling::td/div")).getText();
-//            String sKey = driver.findElement(By.xpath("//*[@translate='configCenter.general.keyBox.privateApiKeyId']/parent::td/following-sibling::td/div")).getText();
+            apiKeyId = apiKeysPage.getApiKeyId();
+            secretApiKey = apiKeysPage.getSecretApiKey();
         });
 
         When("^api call$", () -> {
             Request request = new Request("EUR", 100, 3024, "NL", "100", "en_GB");
 
-            RestAssured.defaultParser = Parser.JSON;
-            RestAssured.config = RestAssuredConfig.config().objectMapperConfig(
-                    ObjectMapperConfig.objectMapperConfig().jackson2ObjectMapperFactory((cls, charset) -> {
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-                        objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-                        return objectMapper;
-                    }));
-            RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
-
-
-            Calendar calendar = Calendar.getInstance(); // pizgeniy cod iz sdk
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US); // pizgeniy cod iz sdk
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT")); // pizgeniy cod iz sdk
-            String date =  dateFormat.format(calendar.getTime()); // pizgeniy cod iz sdk
+            String date = ZonedDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME);
 
             MyAuth myAuth = new MyAuth(apiKeyId, secretApiKey);
-            String dataToSign = myAuth.toDataSignV2("POST", "application/json; charset=UTF-8", date, "/v1/3024/hostedcheckouts");
 
-            String authHeaderValue = "GCS v1HMAC:" + apiKeyId + ":" + myAuth.createAuthenticationSignature(dataToSign);
+            String signature = myAuth.createAuthSignature(HTTP_METHOD, CONTENT_TYPE, date, "/v1/3024/hostedcheckouts");
 
+            String authHeaderValue = "GCS v1HMAC:" + apiKeyId + ":" + signature;
 
             Responce responce = given()
                     .log().all()
-                    .contentType("application/json")
+                    .contentType(CONTENT_TYPE)
                     .header("Authorization", authHeaderValue)
                     .body(request)
                     .pathParam("apiVersion", "v1")
                     .pathParam("merchantId", "3024")
-//                    .header("Date", LocalDateTime.now()) //Fri, 07 Apr 2017 13:06:36 GMT //todo choose one
-                    .header("Date", date) //todo choose one
-            .when()
+                    .header("Date", date)
+                    .when()
                     .post("https://eu.sandbox.api-ingenico.com/{apiVersion}/{merchantId}/hostedcheckouts")
                     .as(Responce.class);
-            System.out.println("xuy " + responce.getPartialRedirectUrl());
+            System.out.println(responce.getPartialRedirectUrl());
             endOfPaymentUrl = responce.getPartialRedirectUrl();
-
         });
 
         When("open url in browser and precede with payment", () -> {
             driver.get("https://payment." + endOfPaymentUrl);
-            driver.findElement(By.cssSelector("[data-sortablelisttext='iDEAL']>form>button")).click();
+            PaymentListPage paymentListPage = PageFactory.initElements(driver, PaymentListPage.class);
+            idealPage = paymentListPage.chooseIDealPayment();
             Thread.sleep(5000);
-            Select selector = new Select(driver.findElement(By.id("issuerId")));
-            selector.selectByVisibleText("Issuer Simulation V3 - ING");
-            driver.findElement(By.id("primaryButton")).click();
+            IDealConfirmationPage iDealConfirmationPage = idealPage.selectBankAndPay("Issuer Simulation V3 - ING");
             Thread.sleep(5000);
-            driver.findElement(By.cssSelector("form[name=ideal_issuer_sim] [name='button.edit']")).click();
+            iDealConfirmationPage.confirmTransaction();
             Thread.sleep(5000);
             // Write code here that turns the phrase above into concrete actions
         });
 
         Then("happy children", () -> {
-            String actualText = driver.findElement(By.cssSelector("#paymentoptionswrapper > p")).getText();
+            String actualText = idealPage.getOperationText();
             assert actualText.equals("Your payment is successful.");
             // Write code here that turns the phrase above into concrete actions
         });
