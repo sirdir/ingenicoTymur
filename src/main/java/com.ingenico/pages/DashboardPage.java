@@ -1,5 +1,6 @@
 package com.ingenico.pages;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -13,7 +14,7 @@ public class DashboardPage extends BasePage {
     @FindBy(css = "[data-test-selector='sidebar-link-api-keys']")
     private WebElement apiKeysLink;
 
-
+    @Step
     public ApiKeysPage gotToApiKeys() {
         apiKeysLink.click();
 

@@ -1,5 +1,6 @@
 package com.ingenico.pages;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -17,6 +18,7 @@ public class IDealPage extends BasePage {
     @FindBy(css = "#paymentoptionswrapper > p")
     private WebElement operationText;
 
+    @Step
     public IDealConfirmationPage selectBankAndPay(String issuerName) {
         Select selector = new Select(issuerId);
         selector.selectByVisibleText(issuerName);
@@ -25,6 +27,7 @@ public class IDealPage extends BasePage {
         return PageFactory.initElements(driver, IDealConfirmationPage.class);
     }
 
+    @Step
     public String getOperationText() {
 
         return operationText.getText();

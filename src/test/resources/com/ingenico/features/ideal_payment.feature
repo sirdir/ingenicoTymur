@@ -1,6 +1,8 @@
 Feature: ideal payment
   Scenario: do ideal payment
-    Given sad children
-    When api call
-    And open url in browser and precede with payment
-    Then happy children
+    Given merchant authorized in ingenico center
+    And merchant has api keys
+    When api call to hostedcheckouts done
+    And redirect url opened in browser
+    And user precede with payment
+    Then payment is successful

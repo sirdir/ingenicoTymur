@@ -6,15 +6,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ingenico.dto.request.Request;
 import com.ingenico.dto.responce.Responce;
 import com.ingenico.pages.*;
+import cucumber.api.Scenario;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java8.En;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import io.qameta.allure.Attachment;
 import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.parsing.Parser;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.PageFactory;
 
@@ -32,6 +37,8 @@ public class Stepdefs implements En {
     private static final String HTTP_METHOD = "POST";
     private WebDriver driver;
     private IDealPage idealPage;
+    private DashboardPage dashboardPage;
+    private PaymentListPage paymentListPage;
 
     @Before
     public void beforeScenario() {
@@ -52,28 +59,31 @@ public class Stepdefs implements En {
     }
 
     @After
-    public void afterScenario() {
+    public void afterScenario(Scenario scenario) {
+        saveScreenshot(((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES));
+
         driver.quit();
+    }
+
+    @Attachment(value = "Page screenshot", type = "image/png")
+    public byte[] saveScreenshot(byte[] screenShot) {
+        return screenShot;
     }
 
 
     public Stepdefs() {
 
-        Given("sad children", () -> {
+        Given("^merchant authorized in ingenico center$", () -> {
 
             Thread.sleep(5000);
             driver.get("https://account-sandbox.globalcollect.com/#/login");
 
             LoginPage loginPage = PageFactory.initElements(driver, LoginPage.class);
-            DashboardPage dashboardPage = loginPage.loginAs("kubay.timur@gmail.com", "B%5rkrgb");
+            dashboardPage = loginPage.loginAs("kubay.timur@gmail.com", "B%5rkrgb");
             Thread.sleep(5000);
-            ApiKeysPage apiKeysPage = dashboardPage.gotToApiKeys();
-            Thread.sleep(5000);
-            apiKeyId = apiKeysPage.getApiKeyId();
-            secretApiKey = apiKeysPage.getSecretApiKey();
         });
 
-        When("^api call$", () -> {
+        When("^api call to hostedcheckouts done$", () -> {
             Request request = new Request("EUR", 100, 3024, "NL", "100", "en_GB");
 
             String date = ZonedDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME);
@@ -99,8 +109,7 @@ public class Stepdefs implements En {
             endOfPaymentUrl = responce.getPartialRedirectUrl();
         });
 
-        When("open url in browser and precede with payment", () -> {
-            driver.get("https://payment." + endOfPaymentUrl);
+        When("^redirect url opened in browser$", () -> {
             PaymentListPage paymentListPage = PageFactory.initElements(driver, PaymentListPage.class);
             idealPage = paymentListPage.chooseIDealPayment();
             Thread.sleep(5000);
@@ -108,13 +117,27 @@ public class Stepdefs implements En {
             Thread.sleep(5000);
             iDealConfirmationPage.confirmTransaction();
             Thread.sleep(5000);
-            // Write code here that turns the phrase above into concrete actions
         });
 
-        Then("happy children", () -> {
+        When("^merchant has api keys$", () -> {
+            ApiKeysPage apiKeysPage = dashboardPage.gotToApiKeys();
+            Thread.sleep(5000);
+            apiKeyId = apiKeysPage.getApiKeyId();
+            secretApiKey = apiKeysPage.getSecretApiKey();
+        });
+
+        When("^user precede with payment$", () -> {
+            idealPage = paymentListPage.chooseIDealPayment();
+            Thread.sleep(5000);
+            IDealConfirmationPage iDealConfirmationPage = idealPage.selectBankAndPay("Issuer Simulation V3 - ING");
+            Thread.sleep(5000);
+            iDealConfirmationPage.confirmTransaction();
+            Thread.sleep(5000);
+        });
+
+        Then("^payment is successful$", () -> {
             String actualText = idealPage.getOperationText();
             assert actualText.equals("Your payment is successful.");
-            // Write code here that turns the phrase above into concrete actions
         });
 
     }

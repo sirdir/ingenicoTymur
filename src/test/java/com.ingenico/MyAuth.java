@@ -1,5 +1,6 @@
 package com.ingenico;
 
+import io.qameta.allure.Step;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.Mac;
@@ -31,6 +32,7 @@ public class MyAuth {
         return sb.toString();
     }
 
+    @Step
     public String createAuthSignature(String httpMethod, String contentType, String date, String res) {
 
         String data = toDataSign(httpMethod, contentType, date, res);
