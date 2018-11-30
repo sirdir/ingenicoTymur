@@ -34,6 +34,7 @@ public class IDealSteps implements En {
 
     public IDealSteps() {
 
+
         Given("^merchant with email (.*) and password (.*) authorized on sandbox$", (String email, String password) -> {
             getDriver().get("https://account-sandbox.globalcollect.com/#/login");
 
@@ -42,12 +43,12 @@ public class IDealSteps implements En {
         });
 
         Given("^merchant has id$", () -> {
-            MerchantIdPage merchantIdPage = sideNavigationMenu.gotMerchantId();
+            MerchantIdPage merchantIdPage = sideNavigationMenu.openMerchantId();
             merchantId = merchantIdPage.getMerchantId();
         });
 
         Given("^merchant has api keys$", () -> {
-            ApiKeysPage apiKeysPage = sideNavigationMenu.gotToApiKeys();
+            ApiKeysPage apiKeysPage = sideNavigationMenu.openApiKeys();
             apiKeyId = apiKeysPage.getApiKeyId();
             secretApiKey = apiKeysPage.getSecretApiKey();
         });

@@ -21,14 +21,14 @@ public class SideNavigationMenu extends BasePage {
     private WebElement merchantIdsLink;
 
     @Step
-    public ApiKeysPage gotToApiKeys() {
+    public ApiKeysPage openApiKeys() {
         wait.until(elementToBeClickable(apiKeysLink)).click();
 
         return PageFactory.initElements(driver, ApiKeysPage.class);
     }
 
     @Step
-    public MerchantIdPage gotMerchantId() {
+    public MerchantIdPage openMerchantId() {
         wait.until(elementToBeClickable(merchantIdsLink)).click();
 
         return PageFactory.initElements(driver, MerchantIdPage.class);

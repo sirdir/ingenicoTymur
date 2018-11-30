@@ -14,7 +14,10 @@ public class LoginPage extends BasePage {
         super(driver);
     }
 
+    @FindBy(id = "username")
     private WebElement username;
+
+    @FindBy(id = "loginPassword")
     private WebElement loginPassword;
 
     @FindBy(id = "kc-login")
@@ -22,7 +25,6 @@ public class LoginPage extends BasePage {
 
     @Step
     public SideNavigationMenu loginAs(String email, String password) {
-        wait.until(visibilityOf(username));
         username.sendKeys(email);
         loginPassword.sendKeys(password);
         loginBtn.click();

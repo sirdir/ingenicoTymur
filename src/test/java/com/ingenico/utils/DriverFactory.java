@@ -17,6 +17,7 @@ public class DriverFactory {
 
         WebDriverManager.chromedriver().setup();
         ChromeOptions chromeOptions = new ChromeOptions();
+        chromeOptions.setAcceptInsecureCerts(true);
         if ("true".equals(System.getProperty("headless"))) {
             chromeOptions.setHeadless(true);
         }
@@ -28,22 +29,12 @@ public class DriverFactory {
     }
 
     public static void stopDriver() {
-        System.out.println("--------------");
-        System.out.println("--------------");
-        System.out.println("--------------");
-        System.out.println("--------------");
-        System.out.println("--------------");
-        System.out.println("--------------");
-        System.out.println("--------------");
-        System.out.println("--------------");
-        System.out.println("--------------");
         try {
             driver.quit();
         }
         finally {
             driver = null;
         }
-
     }
 
 }
