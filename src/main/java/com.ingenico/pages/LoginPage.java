@@ -5,7 +5,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
@@ -22,12 +21,12 @@ public class LoginPage extends BasePage {
     private WebElement loginBtn;
 
     @Step
-    public DashboardPage loginAs(String email, String password) {
+    public SideNavigationMenu loginAs(String email, String password) {
         wait.until(visibilityOf(username));
         username.sendKeys(email);
         loginPassword.sendKeys(password);
         loginBtn.click();
 
-        return PageFactory.initElements(driver, DashboardPage.class);
+        return PageFactory.initElements(driver, SideNavigationMenu.class);
     }
 }

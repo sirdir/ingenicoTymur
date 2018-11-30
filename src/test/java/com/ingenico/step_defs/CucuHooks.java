@@ -52,7 +52,7 @@ public class CucuHooks implements En {
 
     }
 
-    @Attachment(value = "End of test screenshot", type = "image/png")
+    @Attachment(value = "End of step screenshot", type = "image/png")
     public byte[] saveScreenshot(byte[] screenShot) {
         return screenShot;
     }

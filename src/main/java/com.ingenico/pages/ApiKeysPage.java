@@ -4,6 +4,7 @@ import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 
@@ -11,7 +12,10 @@ public class ApiKeysPage extends BasePage {
 
     public ApiKeysPage(WebDriver driver) {
         super(driver);
+        sideNavigationMenu = PageFactory.initElements(driver, SideNavigationMenu.class);
     }
+
+    public SideNavigationMenu sideNavigationMenu;
 
     //todo think about simplify locator
     @FindBy(xpath = ".//*[@translate='configCenter.general.keyBox.apiKeyId']/parent::td/following-sibling::td/div")

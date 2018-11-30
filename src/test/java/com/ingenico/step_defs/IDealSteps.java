@@ -20,7 +20,7 @@ import static io.restassured.RestAssured.given;
 
 public class IDealSteps implements En {
 
-    private static final Integer MERCHANT_ID = 3024;
+    private Integer merchantId;
     private static final String METHOD = "hostedcheckouts";
     private static final String API_VERSION = "v1";
     private static final String CONTENT_TYPE = "application/json; charset=UTF-8";
@@ -29,7 +29,7 @@ public class IDealSteps implements En {
     private String secretApiKey;
     private String endOfPaymentUrl;
     private IDealPage idealPage;
-    private DashboardPage dashboardPage;
+    private SideNavigationMenu sideNavigationMenu;
     private PaymentListPage paymentListPage;
 
     public IDealSteps() {
@@ -38,11 +38,16 @@ public class IDealSteps implements En {
             getDriver().get("https://account-sandbox.globalcollect.com/#/login");
 
             LoginPage loginPage = PageFactory.initElements(getDriver(), LoginPage.class);
-            dashboardPage = loginPage.loginAs(email, password);
+            sideNavigationMenu = loginPage.loginAs(email, password);
+        });
+
+        Given("^merchant has id$", () -> {
+            MerchantIdPage merchantIdPage = sideNavigationMenu.gotMerchantId();
+            merchantId = merchantIdPage.getMerchantId();
         });
 
         Given("^merchant has api keys$", () -> {
-            ApiKeysPage apiKeysPage = dashboardPage.gotToApiKeys();
+            ApiKeysPage apiKeysPage = sideNavigationMenu.gotToApiKeys();
             apiKeyId = apiKeysPage.getApiKeyId();
             secretApiKey = apiKeysPage.getSecretApiKey();
         });
@@ -52,7 +57,7 @@ public class IDealSteps implements En {
             List<Map<String,String>> data = headersValues.asMaps(String.class,String.class);
             HostedCheckoutRequest request = new HostedCheckoutRequest(data.get(0).get("currency")
                     , Integer.valueOf(data.get(0).get("amount"))
-                    , MERCHANT_ID
+                    , merchantId
                     , data.get(0).get("countryCode")
                     , data.get(0).get("variant")
                     , data.get(0).get("locale"));
@@ -61,7 +66,7 @@ public class IDealSteps implements En {
 
             MyAuth myAuth = new MyAuth(apiKeyId, secretApiKey);
 
-            String signature = myAuth.createAuthSignature(HTTP_METHOD, CONTENT_TYPE, date, "/" + API_VERSION + "/" + MERCHANT_ID + "/" + METHOD); //todo
+            String signature = myAuth.createAuthSignature(HTTP_METHOD, CONTENT_TYPE, date, "/" + API_VERSION + "/" + merchantId + "/" + METHOD); //todo
 
             String authHeaderValue = "GCS v1HMAC:" + apiKeyId + ":" + signature;
 
@@ -71,7 +76,7 @@ public class IDealSteps implements En {
                     .header("Authorization", authHeaderValue)
                     .body(request)
                     .pathParam("apiVersion", API_VERSION)
-                    .pathParam("merchantId", MERCHANT_ID)
+                    .pathParam("merchantId", merchantId)
                     .pathParam("method", METHOD)
                     .header("Date", date)
                     .when()
