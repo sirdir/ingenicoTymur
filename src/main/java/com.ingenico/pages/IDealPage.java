@@ -7,6 +7,8 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 
+import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
+
 public class IDealPage extends BasePage {
     public IDealPage(WebDriver driver) {
         super(driver);
@@ -20,6 +22,7 @@ public class IDealPage extends BasePage {
 
     @Step
     public IDealConfirmationPage selectBankAndPay(String issuerName) {
+        wait.until(visibilityOf(issuerId));
         Select selector = new Select(issuerId);
         selector.selectByVisibleText(issuerName);
         primaryButton.click();
@@ -29,6 +32,7 @@ public class IDealPage extends BasePage {
 
     @Step
     public String getOperationText() {
+        wait.until(visibilityOf(operationText));
 
         return operationText.getText();
     }

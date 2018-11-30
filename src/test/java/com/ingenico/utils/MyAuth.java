@@ -1,4 +1,4 @@
-package com.ingenico;
+package com.ingenico.utils;
 
 import io.qameta.allure.Step;
 import org.apache.commons.codec.binary.Base64;
@@ -11,7 +11,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class MyAuth {
 
-    MyAuth(String apiKeyId, String secretApiKey) {
+    public MyAuth(String apiKeyId, String secretApiKey) {
         this.apiKeyId = apiKeyId;
         this.secretApiKey = secretApiKey;
     }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Responce {
+public class HostedCheckoutResponse {
 
     @JsonProperty("RETURNMAC")
     private String rETURNMAC;
@@ -45,7 +45,7 @@ public class Responce {
 
     @Override
     public String toString() {
-        return "Responce{" +
+        return "HostedCheckoutResponse{" +
                 "rETURNMAC='" + rETURNMAC + '\'' +
                 ", hostedCheckoutId='" + hostedCheckoutId + '\'' +
                 ", partialRedirectUrl='" + partialRedirectUrl + '\'' +

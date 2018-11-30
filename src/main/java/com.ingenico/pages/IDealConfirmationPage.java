@@ -6,6 +6,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
+import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
+
 public class IDealConfirmationPage extends BasePage {
     public IDealConfirmationPage(WebDriver driver) {
         super(driver);
@@ -16,7 +18,7 @@ public class IDealConfirmationPage extends BasePage {
 
     @Step
     public IDealPage confirmTransaction() {
-        button.click();
+        wait.until(elementToBeClickable(button)).click();
 
         return PageFactory.initElements(driver, IDealPage.class);
     }

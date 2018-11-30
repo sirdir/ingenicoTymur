@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Request {
+public class HostedCheckoutRequest {
 
-    public Request() {
+    public HostedCheckoutRequest() {
 
     }
 
-    public Request(String currency, Integer amount, Integer merchId, String countryCode, String variant, String locale) {
+    public HostedCheckoutRequest(String currency, Integer amount, Integer merchId, String countryCode, String variant, String locale) {
 
         AmountOfMoney amountOfMoney = new AmountOfMoney();
         amountOfMoney.setAmount(amount);
@@ -60,7 +60,7 @@ public class Request {
 
     @Override
     public String toString() {
-        return "Request{" +
+        return "HostedCheckoutRequest{" +
                 "order=" + order +
                 ", hostedCheckoutSpecificInput=" + hostedCheckoutSpecificInput +
                 '}';

@@ -5,6 +5,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
+import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
+
 public class ApiKeysPage extends BasePage {
 
     public ApiKeysPage(WebDriver driver) {
@@ -21,6 +23,7 @@ public class ApiKeysPage extends BasePage {
 
     @Step
     public String getApiKeyId() {
+        wait.until(visibilityOf(apiKeyIdText));
 
         return apiKeyIdText.getText();
     }
