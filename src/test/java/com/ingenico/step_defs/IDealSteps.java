@@ -73,7 +73,6 @@ public class IDealSteps implements En {
             String authHeaderValue = "GCS v1HMAC:" + apiKeyId + ":" + signature;
 
             Response response = given()
-                    .log().all()
                     .contentType(CONTENT_TYPE)
                     .header("Authorization", authHeaderValue)
                     .body(request)

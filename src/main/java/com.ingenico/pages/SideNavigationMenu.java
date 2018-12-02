@@ -6,8 +6,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
-
 public class SideNavigationMenu extends BasePage {
     public SideNavigationMenu(WebDriver driver) {
         super(driver);
@@ -22,14 +20,14 @@ public class SideNavigationMenu extends BasePage {
 
     @Step
     public ApiKeysPage openApiKeys() {
-        wait.until(elementToBeClickable(apiKeysLink)).click();
+        apiKeysLink.click();
 
         return PageFactory.initElements(driver, ApiKeysPage.class);
     }
 
     @Step
     public MerchantIdPage openMerchantId() {
-        wait.until(elementToBeClickable(merchantIdsLink)).click();
+        merchantIdsLink.click();
 
         return PageFactory.initElements(driver, MerchantIdPage.class);
     }

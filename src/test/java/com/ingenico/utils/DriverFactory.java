@@ -18,12 +18,12 @@ public class DriverFactory {
         WebDriverManager.chromedriver().setup();
         ChromeOptions chromeOptions = new ChromeOptions();
         chromeOptions.setAcceptInsecureCerts(true);
+        chromeOptions.addArguments("window-size=1920,1080");
         if ("true".equals(System.getProperty("headless"))) {
             chromeOptions.setHeadless(true);
         }
 
         driver = new ChromeDriver(chromeOptions);
-        driver.manage().window().maximize();
 
         return driver;
     }
