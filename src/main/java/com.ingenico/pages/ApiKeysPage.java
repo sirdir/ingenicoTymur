@@ -1,33 +1,30 @@
 package com.ingenico.pages;
 
+import com.paulhammant.ngwebdriver.ByAngularRepeaterColumn;
 import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 
 public class ApiKeysPage extends BasePage {
 
     public ApiKeysPage(WebDriver driver) {
         super(driver);
+        ngWebDriver.waitForAngularRequestsToFinish();
         sideNavigationMenu = PageFactory.initElements(driver, SideNavigationMenu.class);
     }
 
     public SideNavigationMenu sideNavigationMenu;
 
-    //todo think about simplify locator
-    @FindBy(xpath = ".//*[@translate='configCenter.general.keyBox.apiKeyId']/parent::td/following-sibling::td/div")
+    @ByAngularRepeaterColumn.FindBy(repeater = "apikey in GC.keys", exact = true, column = "apikey.apiKeyId")
     private WebElement apiKeyIdText;
 
-    //todo think about simplify locator
-    @FindBy(xpath = ".//*[@translate='configCenter.general.keyBox.privateApiKeyId']/parent::td/following-sibling::td/div")
+    @ByAngularRepeaterColumn.FindBy(repeater = "apikey in GC.keys", exact = true, column = "apikey.secretApiKey")
     private WebElement secredApiText;
 
     @Step
     public String getApiKeyId() {
-        wait.until(visibilityOf(apiKeyIdText));
 
         return apiKeyIdText.getText();
     }

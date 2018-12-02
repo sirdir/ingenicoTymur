@@ -5,13 +5,13 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 
-import static org.openqa.selenium.support.ui.ExpectedConditions.*;
+import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
 
 public class SideNavigationMenu extends BasePage {
     public SideNavigationMenu(WebDriver driver) {
         super(driver);
+        ngWebDriver.waitForAngularRequestsToFinish();
     }
 
     @FindBy(css = "[data-test-selector='sidebar-link-api-keys']")

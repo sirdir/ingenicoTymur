@@ -67,7 +67,8 @@ public class IDealSteps implements En {
 
             MyAuth myAuth = new MyAuth(apiKeyId, secretApiKey);
 
-            String signature = myAuth.createAuthSignature(HTTP_METHOD, CONTENT_TYPE, date, "/" + API_VERSION + "/" + merchantId + "/" + METHOD); //todo
+            String res = "/" + API_VERSION + "/" + merchantId + "/" + METHOD;
+            String signature = myAuth.createAuthSignature(HTTP_METHOD, CONTENT_TYPE, date, res);
 
             String authHeaderValue = "GCS v1HMAC:" + apiKeyId + ":" + signature;
 
