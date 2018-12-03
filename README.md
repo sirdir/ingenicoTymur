@@ -1,5 +1,7 @@
 # ingenico
 
+Full test assignment you can find in [google docs](https://docs.google.com/document/d/1TVo89XWAMGZ14ycIln_FIGxFnfrZAVGwGz0ijxEeB90/edit?usp=sharing)
+
 ***Important*** in case you use openjdk-8(mostly linux users), please update to 191v because of [surefire bug](https://stackoverflow.com/questions/53010200/maven-surefire-could-not-find-forkedbooter-class)
 
 Just run test and see report `mvn clean test allure:serve`
